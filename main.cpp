@@ -10,8 +10,10 @@
 int main() {
 	const xieite::streams::StandardHandle terminal = xieite::streams::StandardHandle(std::cin, std::cout);
 	const xieite::streams::Position size = terminal.getScreenSize();
-	// terminal.setScreenAlternate(true);
-	// terminal.setCursorAlternate(true);
+	terminal.setInputEcho(false);
+	terminal.setInputSignals(false);
+	terminal.setScreenAlternate(true);
+	terminal.setCursorAlternate(true);
 
 	constexpr std::string_view characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^&*()_+`{}|[]\\;':\",./<>?";
 
@@ -24,7 +26,7 @@ int main() {
 		things[i] = distribution(generator);
 	}
 
-	while (true) {
+	while (!terminal.readString().contains('q')) {
 		std::vector<std::vector<xieite::graphics::Color>> canvas = std::vector<std::vector<xieite::graphics::Color>>(size.column, std::vector<xieite::graphics::Color>(size.row, xieite::graphics::Color(0, 0, 0)));
 		for (int i = 0; i < size.column; ++i) {
 			for (int j = 0; j < 16; ++j) {
@@ -39,7 +41,9 @@ int main() {
 				std::cout << characters[character(generator)];
 			}
 			terminal.resetForegroundColor();
-			std::cout << "\n\r";
+			if (y < (size.row - 1)) {
+				std::cout << "\n\r";
+			}
 		}
 
 		std::cout.flush();
@@ -49,4 +53,7 @@ int main() {
 			things[i] = (things[i] + 1) % size.row;
 		}
 	}
+
+	terminal.setCursorAlternate(false);
+	terminal.setScreenAlternate(false);
 }
